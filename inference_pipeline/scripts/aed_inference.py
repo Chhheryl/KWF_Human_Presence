@@ -46,8 +46,9 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-sys.path.append(os.path.abspath(".."))
-from src.model.architecture import TinyCNN
+# architecture.py sits next to this script in inference_pipeline/scripts/
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from architecture import TinyCNN
 
 # ---------------------------------------------------------------------------
 # Mel spectrogram parameters (must match training — do not change)

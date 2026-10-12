@@ -104,8 +104,11 @@ def engineer_patrick_features(df):
     if df['Datetime'].isna().any():
         raise ValueError("Unparseable Timestamp values; Volume_Spike_15s needs every clip's time.")
     df = df.sort_values(by=['Recorder', 'Datetime']).reset_index(drop=True)
-    df['rolling_rms'] = df.groupby('Recorder', group_keys=False)[['Datetime', 'RMS_Energy']].apply(
-        lambda g: g.rolling('15s', on='Datetime', closed='left')['RMS_Energy'].mean()
+    # Concatenate per-recorder results; groupby().apply() returns a DataFrame
+    # instead of a Series when there is only one recorder.
+    df['rolling_rms'] = pd.concat(
+        g.rolling('15s', on='Datetime', closed='left')['RMS_Energy'].mean()
+        for _, g in df.groupby('Recorder')
     )
     df['Volume_Spike_15s'] = (df['RMS_Energy'] - df['rolling_rms']).clip(lower=0).fillna(0)
     df.drop(columns=['rolling_rms'], inplace=True)
